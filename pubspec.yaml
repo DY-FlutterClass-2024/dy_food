@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.2
+  http: # api 연동을 위한 설정
+  intl: ^0.18.0 # 버전은 최신으로 설정
+  table_calendar: ^3.0.9
 
 dev_dependencies:
   flutter_test:
