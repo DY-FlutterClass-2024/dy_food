@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dy_food_flutter/Menu_bottom.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _mealInfo = '급식 정보를 불러오는 중 오류가 발생했습니다.';
         _calorieInfo = '';
       });
-      print(e);
+      if (kDebugMode) print(e);
     }
   }
 
@@ -153,7 +153,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const MenuBottom(),
       body: Padding(
         padding: const EdgeInsets.all(30.60),
         child: Column(
