@@ -1,9 +1,10 @@
 import 'dart:convert';
-
+import 'package:dy_food_flutter/food_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,10 +15,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DateTime _selectedDate = DateTime.now();
-  String _mealInfo = '';
+  List<FoodInfo> _foodInfoList = [];
+  // String _mealInfo = '';
   String _calorieInfo = ''; // 칼로리 정보를 저장할 변수
   final String apiKey =
       'c0e7d58552314f49a2f37bb240f75052'; // Replace with your API key
+  List<int> _inputList = [];
 
   String _formatDate(DateTime date) {
     return DateFormat('M월 d일').format(date);
@@ -52,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // 주말이면 급식 정보를 가져오지 않음
     if (_isWeekend()) {
       setState(() {
-        _mealInfo = '행복하고 즐거운 주말~ ^*^';
+        _foodInfoList = [];
         _calorieInfo = '';
       });
       return;
@@ -70,14 +73,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Check if the response contains meal data
         if (data['mealServiceDietInfo'][1]['row'].isNotEmpty) {
+          final List<String> dataList = data['mealServiceDietInfo'][1]['row'][0]
+                  ['DDISH_NM']
+              .split('<br/>');
           setState(() {
-            _mealInfo = data['mealServiceDietInfo'][1]['row'][0]['DDISH_NM']
-                .replaceAll('<br/>', '\n'); // 줄바꿈 처리
+            _foodInfoList =
+                dataList.map((data) => FoodInfo.fromData(data)).toList();
             _calorieInfo = data['mealServiceDietInfo'][1]['row'][0]['CAL_INFO'];
           });
         } else {
           setState(() {
-            _mealInfo = '급식 정보가 없습니다.';
+            _foodInfoList = [];
             _calorieInfo = '';
           });
         }
@@ -86,23 +92,38 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       setState(() {
-        _mealInfo = '급식 정보를 불러오는 중 오류가 발생했습니다.';
+        _foodInfoList = [];
         _calorieInfo = '';
       });
       if (kDebugMode) print(e);
     }
   }
 
+  void _fetchInputList() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String>? inputStringList = prefs.getStringList('inputList');
+    if (inputStringList == null) return;
+
+    setState(() {
+      _inputList = inputStringList.map((input) => int.parse(input)).toList();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _fetchMealData(); // Fetch meal data when the app starts
+    _fetchInputList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(246, 243, 233, 184), // 배경색을 투명으로 설정
+
       appBar: AppBar(
+        backgroundColor:
+            const Color.fromARGB(246, 243, 233, 184), // 배경색을 투명으로 설정
         titleSpacing: 0.0,
         title: const Padding(
           padding: EdgeInsets.only(left: 16.0),
@@ -127,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context: context,
                   initialDate: _selectedDate,
                   firstDate: DateTime(2020),
-                  lastDate: DateTime(2025),
+                  lastDate: DateTime(2030),
                 );
                 if (pickedDate != null) {
                   setState(() {
@@ -153,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(30.60),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,12 +225,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white)),
                     const SizedBox(height: 10),
-                    Text(
-                      _mealInfo.isNotEmpty ? _mealInfo : '급식 정보를 불러오는 중...',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
-                      ),
+                    ..._foodInfoList.map(
+                      (food) {
+                        return Wrap(
+                          direction: Axis.horizontal,
+                          children: [
+                            Text(
+                              food.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                            const SizedBox(width: 5),
+                            ...food.allergens.map(
+                              (allergen) => Text(
+                                '$allergen. ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: (_inputList.contains(allergen))
+                                      ? Colors.red
+                                      : Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -220,19 +261,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                    onPressed: _previousDay,
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      backgroundColor: const Color.fromARGB(255, 211, 211, 211),
-                      padding: const EdgeInsets.all(20),
-                    ),
-                    child: const Icon(
-                      Icons.chevron_left,
-                      color: Colors.blue,
-                      size: 30,
-                    ),
-                  ),
                   ElevatedButton(
                     onPressed: _goToToday,
                     style: ElevatedButton.styleFrom(
@@ -250,6 +278,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontSize: 20,
                         color: Colors.blue,
                       ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _previousDay,
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      backgroundColor: const Color.fromARGB(255, 211, 211, 211),
+                      padding: const EdgeInsets.all(20),
+                    ),
+                    child: const Icon(
+                      Icons.chevron_left,
+                      color: Colors.blue,
+                      size: 30,
                     ),
                   ),
                   ElevatedButton(

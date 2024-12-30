@@ -13,6 +13,8 @@ dependencies:
   http: # api 연동을 위한 설정
   intl: ^0.18.0 # 버전은 최신으로 설정
   table_calendar: ^3.0.9
+  shared_preferences: ^2.3.3
+  audioplayers:
 
 dev_dependencies:
   flutter_test:
@@ -21,3 +23,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/al.jpg
+    - assets/basic.mp3

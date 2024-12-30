@@ -1,4 +1,4 @@
-import 'package:dy_food_flutter/bmi_screen.dart';
+import 'package:dy_food_flutter/info_screen.dart';
 import 'package:dy_food_flutter/home_screen.dart';
 import 'package:dy_food_flutter/my_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ class _MainAppState extends State<MainApp> {
   /// [BottomNavigationBar]에서 선택된 탭에 따라 보여줄 화면 목록을 저장하는 state입니다.
   final List<Widget> _pages = const [
     HomeScreen(),
-    BmiScreen(),
+    InfoScreen(),
   ];
 
   /// 하단 네비게이션바에 표시될 아이템들을 정의합니다.
@@ -32,7 +32,7 @@ class _MainAppState extends State<MainApp> {
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.calculate),
-      label: 'bmi',
+      label: 'info',
     ),
   ];
 

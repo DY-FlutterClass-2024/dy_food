@@ -20,6 +20,7 @@ class MyBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      backgroundColor: const Color.fromARGB(246, 255, 244, 158), // 배경색을 투명으로 설정
       currentIndex: currentIndex,
       onTap: onTap,
       items: items,
