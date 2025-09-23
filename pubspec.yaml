@@ -10,11 +10,12 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  http: # api 연동을 위한 설정
+  http: ^1.1.0 # api 연동을 위한 설정
   intl: ^0.18.0 # 버전은 최신으로 설정
   table_calendar: ^3.0.9
   shared_preferences: ^2.3.3
-  audioplayers:
+  audioplayers: ^6.0.0
+  flutter_local_notifications: ^17.2.2
 
 dev_dependencies:
   flutter_test:

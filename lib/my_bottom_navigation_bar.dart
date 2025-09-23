@@ -8,22 +8,38 @@ class MyBottomNavigationBar extends StatelessWidget {
     required this.onTap,
   });
 
-  /// 현재 선택된 탭의 인덱스
   final int currentIndex;
-
-  /// [BottomNavigationBar]에 표시될 아이템 목록
   final List<BottomNavigationBarItem> items;
-
-  /// 탭이 선택되었을 때 호출되는 [콜백 함수](https://velog.io/@qlr222/Flutter-Callback-1)
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color.fromARGB(246, 255, 244, 158), // 배경색을 투명으로 설정
-      currentIndex: currentIndex,
-      onTap: onTap,
-      items: items,
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFF9A8B), Color(0xFFFECFEF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        currentIndex: currentIndex,
+        onTap: onTap,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        type: BottomNavigationBarType.fixed,
+        items: items,
+      ),
     );
   }
 }

@@ -26,7 +26,7 @@ class FoodInfo {
         .split(' (')[1]
         .replaceAll(')', '')
         .split('.')
-        .map((allergens) => int.parse(allergens))
+        .map((allergen) => int.parse(allergen))
         .toList();
     print(allergens);
 

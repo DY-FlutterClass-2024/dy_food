@@ -1,11 +1,14 @@
 import 'package:dy_food_flutter/info_screen.dart';
 import 'package:dy_food_flutter/home_screen.dart';
 import 'package:dy_food_flutter/my_bottom_navigation_bar.dart';
+import 'package:dy_food_flutter/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
+  await NotificationService.initialize();
   runApp(const MainApp());
 }
 
@@ -27,12 +30,12 @@ class _MainAppState extends State<MainApp> {
   /// 각 아이템은 [BottomNavigationBarItem.icon]과 [BottomNavigationBarItem.label]로 구성됩니다.
   final List<BottomNavigationBarItem> _items = const [
     BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'home',
+      icon: Icon(Icons.restaurant_menu),
+      label: '급식',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.calculate),
-      label: 'info',
+      icon: Icon(Icons.health_and_safety),
+      label: '알레르기',
     ),
   ];
 

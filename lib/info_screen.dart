@@ -8,24 +8,47 @@ class InfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData themeData = ThemeData(useMaterial3: true);
-
-    return MaterialApp(
-      theme: themeData,
-      home: Scaffold(
-        backgroundColor:
-            const Color.fromARGB(246, 243, 233, 184), // 배경색을 투명으로 설정
-        appBar: AppBar(
-          backgroundColor:
-              const Color.fromARGB(246, 243, 233, 184), // 배경색을 투명으로 설정
-          title: const Text(
-            '알레르기 정보 입력(숫자만)',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFA8E6CF), Color(0xFF88D8C0)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        body: const Padding(
-          padding: EdgeInsets.all(10.0),
-          child: AllergyInputField(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.health_and_safety,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      '알레르기 정보 ✨',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: AllergyInputField(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -36,7 +59,7 @@ class AllergyInputField extends StatefulWidget {
   const AllergyInputField({super.key});
 
   @override
-  _AllergyInputFieldState createState() => _AllergyInputFieldState();
+  State<AllergyInputField> createState() => _AllergyInputFieldState();
 }
 
 class _AllergyInputFieldState extends State<AllergyInputField> {
@@ -82,9 +105,9 @@ class _AllergyInputFieldState extends State<AllergyInputField> {
     }
   }
 
-  void _deleteItem(int index) {
+  void _deleteItem(String value) {
     setState(() {
-      _inputList.removeAt(index);
+      _inputList.remove(value);
       _updateInputList();
     });
   }
@@ -97,82 +120,253 @@ class _AllergyInputFieldState extends State<AllergyInputField> {
 
   @override
   Widget build(BuildContext context) {
-    // Sort the list in ascending order
     List<String> sortedList = List.from(_inputList);
     sortedList.sort((a, b) => int.parse(a).compareTo(int.parse(b)));
-    AudioPlayer audioPlayer = AudioPlayer(); // 배경음악 재생 여부
+    AudioPlayer audioPlayer = AudioPlayer();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          controller: _controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            hintText: '숫자를 입력하세요',
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-          onSubmitted: _handleSubmit,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-          ],
-        ),
-        const SizedBox(height: 10),
-        Text(
-          _errorMessage,
-          style: const TextStyle(color: Colors.red),
+          child: Column(
+            children: [
+              TextField(
+                controller: _controller,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: '알레르기 번호를 입력하세요 (0-19)',
+                  prefixIcon: Icon(
+                    Icons.numbers,
+                    color: Colors.teal.shade400,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                ),
+                onSubmitted: _handleSubmit,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+              ),
+              if (_errorMessage.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(
+                      color: Colors.red.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
         const SizedBox(height: 20),
-        Expanded(
-          child: SingleChildScrollView(
+        if (sortedList.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: sortedList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(
-                        '입력한 알레르기 숫자 정보: ${sortedList[index]}',
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.list_alt,
+                      color: Colors.teal.shade400,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      '내 알레르기 목록',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D3436),
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteItem(index),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: sortedList.map((item) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF9A8B), Color(0xFFFECFEF)],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.pink.withOpacity(0.2),
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            item,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => _deleteItem(item),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ],
                       ),
                     );
-                  },
+                  }).toList(),
                 ),
-                Center(
-                  child: Image.asset(
-                    'assets/al.jpg',
-                    width: 400,
-                    height: 500,
-                    fit: BoxFit.cover,
+              ],
+            ),
+          ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.blue.shade400,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            '알레르기 정보표',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D3436),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              onPressed: () async {
+                                await audioPlayer.play(AssetSource("basic.mp3"));
+                              },
+                              icon: const Icon(
+                                Icons.play_arrow,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFF9A8B), Color(0xFFFECFEF)],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              onPressed: () async {
+                                await audioPlayer.stop();
+                              },
+                              icon: const Icon(
+                                Icons.stop,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                    child: Image.asset(
+                      'assets/al.jpg',
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-        const SizedBox(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start, // 왼쪽 정렬
-          children: [
-            IconButton(
-              onPressed: () async {
-                await audioPlayer.play(AssetSource("basic.mp3"));
-              },
-              icon: const Icon(Icons.play_arrow),
-            ),
-            IconButton(
-              onPressed: () async {
-                await audioPlayer.stop();
-              },
-              icon: const Icon(Icons.ac_unit),
-            ),
-          ],
         ),
       ],
     );
